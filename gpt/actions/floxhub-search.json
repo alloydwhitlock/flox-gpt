@@ -1,0 +1,248 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Flox Package Search",
+    "description": "Search for packages available in the Flox Catalog. Flox uses Nixpkgs as its package source, so this API searches the same packages available via `flox search`. Use this to find packages for Flox environments and get version history.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://search.devbox.sh",
+      "description": "Nixhub API (Nixpkgs package search)"
+    }
+  ],
+  "paths": {
+    "/v2/search": {
+      "get": {
+        "operationId": "searchPackages",
+        "summary": "Search for packages",
+        "description": "Search for packages by name. Returns matching packages with their name, summary, and last updated date. These packages can be installed with `flox install <name>` or added to manifest.toml as `<name>.pkg-path = \"<name>\"`.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search query string. Can be a package name or partial name. Examples: 'python', 'nodejs', 'postgresql'.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResults"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded. Wait and retry."
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/v2/pkg": {
+      "get": {
+        "operationId": "getPackageVersions",
+        "summary": "Get package details and version history",
+        "description": "Get detailed information about a specific package including all available versions. This is equivalent to `flox show <package>`. Use the exact package name from search results.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "description": "Exact package name from search results (e.g., 'nodejs', 'python311', 'postgresql').",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Package details with version history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackageDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Package not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/v2/resolve": {
+      "get": {
+        "operationId": "resolvePackageVersion",
+        "summary": "Resolve a package to a specific version",
+        "description": "Resolve a package name and optional version constraint to find the exact version available. Useful for pinning versions in Flox manifests.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "description": "Package name to resolve",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Version constraint (e.g., '20.0', '^18.0', 'latest'). If omitted, returns the latest version.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resolved package version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolvedPackage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Package or version not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PackageSearchResult": {
+        "type": "object",
+        "description": "A package from search results",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name. Use this in Flox as: `flox install <name>` or in manifest.toml as `<id>.pkg-path = \"<name>\"`"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Brief package description"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this package was last updated"
+          }
+        }
+      },
+      "SearchResults": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query that was executed"
+          },
+          "total_results": {
+            "type": "integer",
+            "description": "Total number of matching packages"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageSearchResult"
+            },
+            "description": "Array of matching packages"
+          }
+        }
+      },
+      "PackageVersion": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Version string"
+          },
+          "systems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Supported systems (e.g., x86_64-linux, aarch64-darwin)"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this version was last updated"
+          }
+        }
+      },
+      "PackageDetails": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Package description"
+          },
+          "homepage": {
+            "type": "string",
+            "description": "Package homepage URL"
+          },
+          "license": {
+            "type": "string",
+            "description": "Package license"
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageVersion"
+            },
+            "description": "Available versions of this package"
+          }
+        }
+      },
+      "ResolvedPackage": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Package name"
+          },
+          "version": {
+            "type": "string",
+            "description": "Resolved version"
+          },
+          "systems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Supported systems for this version"
+          }
+        }
+      }
+    }
+  }
+}
