@@ -1,0 +1,261 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "version": 1,
+    "install": {
+      "git": {
+        "pkg-path": "git"
+      },
+      "python3": {
+        "pkg-path": "python3"
+      }
+    },
+    "hook": {},
+    "profile": {},
+    "options": {}
+  },
+  "packages": [
+    {
+      "attr_path": "git",
+      "broken": false,
+      "derivation": "/nix/store/iljbks0y8x34b38iyr6cp45w40y7i5fk-git-2.52.0.drv",
+      "description": "Distributed version control system",
+      "install_id": "git",
+      "license": "GPL-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "git-2.52.0",
+      "pname": "git",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T02:56:34.530213Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.52.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "doc": "/nix/store/1518yqnr4z0p65jfv8skw2qwc30ad5la-git-2.52.0-doc",
+        "out": "/nix/store/1xy62wrp3m91snd3cazxgg0yrplb6sav-git-2.52.0"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "git",
+      "broken": false,
+      "derivation": "/nix/store/vfyf0r08fdqp19g4542inp1sbsa51i3m-git-2.52.0.drv",
+      "description": "Distributed version control system",
+      "install_id": "git",
+      "license": "GPL-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "git-2.52.0",
+      "pname": "git",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:12:55.387338Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.52.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/q0lq2fczq1y9q9028k4ripf38mfy3n42-git-2.52.0-debug",
+        "doc": "/nix/store/lm1plgvh8qlv0amm8wiz8l00ky298hws-git-2.52.0-doc",
+        "out": "/nix/store/mfbr42w740arf759n51nhki221lang5z-git-2.52.0"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "git",
+      "broken": false,
+      "derivation": "/nix/store/1gr7bffbw1vx7q9n1cirxw76py4nqhbg-git-2.52.0.drv",
+      "description": "Distributed version control system",
+      "install_id": "git",
+      "license": "GPL-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "git-2.52.0",
+      "pname": "git",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:23:31.038407Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.52.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "doc": "/nix/store/a9903b6q3clvx61l8drkpr262fb5qmik-git-2.52.0-doc",
+        "out": "/nix/store/0lxp1s4hb0xb0di1a5jg08rr8hk0cvz8-git-2.52.0"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "git",
+      "broken": false,
+      "derivation": "/nix/store/38ld2rqc31vsfzm9d20h6wdpkj3sy0v1-git-2.52.0.drv",
+      "description": "Distributed version control system",
+      "install_id": "git",
+      "license": "GPL-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "git-2.52.0",
+      "pname": "git",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:33:06.720699Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.52.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/q6m51s4q8kddlh9b9rb63v1yqvlv3xgp-git-2.52.0-debug",
+        "doc": "/nix/store/n4zq81winwf8d5y2ra7fjznwl6cnhggz-git-2.52.0-doc",
+        "out": "/nix/store/fryiyyhhilpqhx2wc4b6l5gnxc8w18rg-git-2.52.0"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/4lyx38kvkyv0w29n42zchi7kknxsj75j-python3-3.13.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "python3-3.13.11",
+      "pname": "python3",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T02:57:09.699766Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.13.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/48ak878425b9wyrkwd826d2043m3ii36-python3-3.13.11"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/cr0kp31yfvjasbxv0pgy6ca9gmq09fy6-python3-3.13.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "python3-3.13.11",
+      "pname": "python3",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:13:50.076602Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.13.11",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/6chjr6ibi9zgngvldl6ian0rpx2z3acn-python3-3.13.11-debug",
+        "out": "/nix/store/y88crn50yx35fiiwcjx6xqwi6ahk7mlq-python3-3.13.11"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/qzpa9qsprcb4z8bf9rdkb40pmnxa0m89-python3-3.13.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "python3-3.13.11",
+      "pname": "python3",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:24:06.759035Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.13.11",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/s0z3ix6qf9gz6b8wz909lwnlnykr1nlj-python3-3.13.11"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "python3",
+      "broken": false,
+      "derivation": "/nix/store/2s2zik6gyc4s3pf1nm7lbfii8699dsab-python3-3.13.11.drv",
+      "description": "High-level dynamically-typed programming language",
+      "install_id": "python3",
+      "license": "Python-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=5912c1772a44e31bf1c63c0390b90501e5026886",
+      "name": "python3-3.13.11",
+      "pname": "python3",
+      "rev": "5912c1772a44e31bf1c63c0390b90501e5026886",
+      "rev_count": 923638,
+      "rev_date": "2026-01-07T06:26:47Z",
+      "scrape_date": "2026-01-08T03:34:05.878860Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.13.11",
+      "outputs_to_install": [
+        "out",
+        "out"
+      ],
+      "outputs": {
+        "debug": "/nix/store/jzjb5519pa3fmarkvk0wj6swh0k1kqi6-python3-3.13.11-debug",
+        "out": "/nix/store/qzc04a3npl70cyyy6flnnrb2ig3kayxm-python3-3.13.11"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    }
+  ]
+}

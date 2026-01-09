@@ -1,0 +1,14 @@
+{
+  "conversation_starters": [
+    "How do I get started with Flox?",
+    "Help me create a Python development environment",
+    "What's the difference between Flox and Docker?",
+    "How do I share my environment with my team?",
+    "Show me how to add packages to my environment",
+    "How do I run background services in Flox?",
+    "Help me migrate from conda/venv to Flox",
+    "Explain the manifest.toml file",
+    "What packages are available for Node.js development?",
+    "How do I install a specific version of a package?"
+  ]
+}

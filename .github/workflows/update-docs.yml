@@ -1,0 +1,154 @@
+name: Update FloxGPT Documentation
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+  
+  # Also run on pushes to main (for testing)
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/update-docs.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run consolidation script
+        id: consolidate
+        run: |
+          python scripts/consolidate-docs.py
+          
+          # Extract source commit info for release notes
+          if [ -f output/last-updated.txt ]; then
+            SOURCE_COMMIT=$(grep "Source Commit:" output/last-updated.txt | cut -d' ' -f3)
+            echo "source_commit=$SOURCE_COMMIT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --quiet output/ || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Get current date
+        id: date
+        run: |
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "datetime=$(date +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_OUTPUT
+          echo "tag=v$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add output/
+          git commit -m "docs: Update Flox documentation - ${{ steps.date.outputs.date }}"
+          git push
+
+      - name: Get document stats
+        id: stats
+        run: |
+          if [ -f output/floxgpt-knowledge.md ]; then
+            CHARS=$(wc -c < output/floxgpt-knowledge.md | tr -d ' ')
+            WORDS=$(wc -w < output/floxgpt-knowledge.md | tr -d ' ')
+            LINES=$(wc -l < output/floxgpt-knowledge.md | tr -d ' ')
+            echo "chars=$CHARS" >> $GITHUB_OUTPUT
+            echo "words=$WORDS" >> $GITHUB_OUTPUT
+            echo "lines=$LINES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        if: steps.git-check.outputs.changes == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.date.outputs.tag }}
+          name: "📚 FloxGPT Knowledge Update - ${{ steps.date.outputs.date }}"
+          body: |
+            ## 🔄 FloxGPT Knowledge Base Updated!
+            
+            The Flox documentation has been updated. **Please update your Custom GPT's knowledge file.**
+            
+            ### 📥 How to Update Your GPT
+            
+            1. Download `floxgpt-knowledge.md` from the assets below
+            2. Go to [ChatGPT](https://chat.openai.com) → Your GPTs → FloxGPT → Configure
+            3. Under **Knowledge**, remove the old file and upload the new one
+            4. Click **Update** to save
+            
+            ### 📊 Document Stats
+            
+            | Metric | Value |
+            |--------|-------|
+            | Characters | ${{ steps.stats.outputs.chars }} |
+            | Words | ${{ steps.stats.outputs.words }} |
+            | Lines | ${{ steps.stats.outputs.lines }} |
+            
+            ### 🔗 Source
+            
+            - **Source Repo**: [flox/floxdocs](https://github.com/flox/floxdocs)
+            - **Source Commit**: `${{ steps.consolidate.outputs.source_commit }}`
+            - **Generated**: ${{ steps.date.outputs.datetime }}
+            
+            ---
+            
+            💡 **Tip**: Watch this repository to get notified when updates are available!
+          files: |
+            output/floxgpt-knowledge.md
+            output/last-updated.txt
+          draft: false
+          prerelease: false
+
+      - name: Create summary
+        run: |
+          echo "## Documentation Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f output/last-updated.txt ]; then
+            echo "### Update Info" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat output/last-updated.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Document Stats" >> $GITHUB_STEP_SUMMARY
+          echo "- **Characters**: ${{ steps.stats.outputs.chars }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Words**: ${{ steps.stats.outputs.words }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Lines**: ${{ steps.stats.outputs.lines }}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.git-check.outputs.changes }}" == "true" ]; then
+            echo "✅ **Changes detected** - Release created with tag \`${{ steps.date.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔔 **Action Required**: Update your Custom GPT's knowledge file!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes detected - documentation is up to date" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: floxgpt-knowledge
+          path: output/
+          retention-days: 30
