@@ -2,7 +2,7 @@
 
 > A custom ChatGPT that stays up-to-date with the latest Flox documentation.
 
-[![Update Documentation](https://github.com/YOUR_USERNAME/floxgpt/actions/workflows/update-docs.yml/badge.svg)](https://github.com/YOUR_USERNAME/floxgpt/actions/workflows/update-docs.yml)
+[![Update Documentation](https://github.com/alloydwhitlock/floxgpt/actions/workflows/update-docs.yml/badge.svg)](https://github.com/alloydwhitlock/floxgpt/actions/workflows/update-docs.yml)
 
 ## Overview
 
