@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-01-12 06:41:42 UTC
+- **Last Updated**: 2026-01-13 06:39:30 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `be2e725e`
-- **Source Commit Date**: 2026-01-09 00:28:40 +0100
-- **Source Commit Message**: chore: update tailscale/github-action from v3 to v4
+- **Source Commit**: `03f0a3ff`
+- **Source Commit Date**: 2026-01-13 01:35:51 +0100
+- **Source Commit Message**: chore: Update Flox environment
 
 ## About Flox
 
