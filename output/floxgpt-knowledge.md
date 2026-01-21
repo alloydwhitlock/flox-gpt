@@ -4,10 +4,10 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-01-20 06:41:29 UTC
+- **Last Updated**: 2026-01-21 06:41:39 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `03f0a3ff`
-- **Source Commit Date**: 2026-01-13 01:35:51 +0100
+- **Source Commit**: `e0a4f4db`
+- **Source Commit Date**: 2026-01-20 16:27:56 -0600
 - **Source Commit Message**: chore: Update Flox environment
 
 ## About Flox
