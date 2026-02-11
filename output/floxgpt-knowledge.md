@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-10 07:09:50 UTC
+- **Last Updated**: 2026-02-11 07:06:05 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `d03044f1`
-- **Source Commit Date**: 2026-02-09 11:55:49 -0600
-- **Source Commit Message**: chore(deps-dev): bump urllib3 from 2.6.0 to 2.6.3
+- **Source Commit**: `8771decd`
+- **Source Commit Date**: 2026-02-10 12:26:04 -0700
+- **Source Commit Message**: feat: replace usage of `activate --` with `-c`
 
 ## About Flox
 
@@ -2901,7 +2901,7 @@ _and_ all of your customizations.
 Given that environments are such an important part of Flox,
 it stands to reason that _how you use them_ is also an important part of Flox.
 
-There are three different ways to use an environment,
+There are four different ways to use an environment,
 and two different modes that an environment can be activated in.
 At the end of the day, though, it all boils down to properly configuring a
 shell.
@@ -2940,9 +2940,9 @@ Flox will place `<path to myenv>/.flox/run/<your system>.myenv.dev/bin` at the
 beginning of your `PATH` variable so that `hello` will be selected from your
 environment rather than from elsewhere on your system.
 
-## Three different ways to activate
+## Four different ways to activate
 
-We mentioned above that there are three different ways to use an environment.
+We mentioned above that there are four different ways to use an environment.
 
 ### Subshell
 
@@ -3001,7 +3001,7 @@ You could do this manually, but Flox will also prompt you to do it for you
 the first time you attempt to install a package in a directory without an
 environment and with no environments currently active.
 
-### Command
+### Shell Command
 
 Sometimes you just want to run a command in the context of your environment,
 maybe because you have some tools available in your environment that aren't
@@ -3027,7 +3027,7 @@ which you may not want.
 The easy way to do this is:
 
 ```{ .bash .copy }
-flox activate -- <your command>
+flox activate -c "<your command>"
 ```
 
 This starts a Flox-configured subshell, runs your command,
@@ -3037,11 +3037,30 @@ and immediately exits to put you back into your shell.
 shape: sequence_diagram
 user_shell: User shell
 subshell: Subshell
-user_shell -> subshell: "flox activate -- cmd"
+user_shell -> subshell: "flox activate -c cmd"
 subshell -> subshell: run "cmd"
 subshell -> user_shell: automatic exit
 user_shell."Back to you"
 ```
+
+### Exec Command
+
+The final way to activate an environment is to exec a command directly without an intermediate shell, which can be done with:
+
+```{ .bash .copy }
+flox activate -- <your command>
+```
+
+This is similar to `activate -c` in that it activates the environment, runs a
+command, and then exits.
+
+Unlike `-c`, when exec'ing a command directly with `--`:
+
+1. `[profile]` scripts aren't run
+1. Shell syntax isn't supported, so it's not possible to chain commands (e.g. `cmd1 && cmd2`), use shell builtins, or use aliases.
+
+When none of those features are needed, using `--` is faster than `-c` since
+there's no intermediate shell.
 
 ## Activation flow
 
@@ -3899,7 +3918,7 @@ For the following examples assume that you have a repository that contains a Flo
 
 Flox provides two different actions that you can use in a GitHub Actions workflow:
 
-- `flox/install-flox-action`: This action installs the Flox CLI so you can run Flox commands as you would locally. At some point you would typically run `flox activate -- <your command>` with this action to run a command inside the Flox environment.
+- `flox/install-flox-action`: This action installs the Flox CLI so you can run Flox commands as you would locally. At some point you would typically run `flox activate -c "<your command>"` with this action to run a command inside the Flox environment.
 - `flox/activate-action`: This action allows you to skip activating the environment yourself and simply provide the command that you would like to run in the environment.
 
 Note that the `flox/install-flox-action` is still required if you want to use `flox/activate-action`.
@@ -3967,7 +3986,7 @@ jobs:
 
 To run Flox in a GitLab pipeline you use a container image with Flox preinstalled.
 Flox provides the `ghcr.io/flox/flox` image for you to use in your pipelines.
-Inside the container you have access to the full Flox CLI, so running a command in the container looks the same as it would locally: `flox activate -- <your command>`.
+Inside the container you have access to the full Flox CLI, so running a command in the container looks the same as it would locally: `flox activate -c "<your command>"`.
 
 Here is an example GitLab pipeline that uses a Flox container to run `npm run build` inside the environment:
 
@@ -3976,7 +3995,7 @@ build:
   stage: build
   image: ghcr.io/flox/flox:latest # (1)!
   script:
-    - flox activate -- npm run build # (2)!
+    - flox activate -c "npm run build" # (2)!
 ```
 
 1. Use the `ghcr.io/flox/flox` container image, which comes with Flox already installed.
