@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-11 07:06:05 UTC
+- **Last Updated**: 2026-02-12 07:05:24 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `8771decd`
-- **Source Commit Date**: 2026-02-10 12:26:04 -0700
-- **Source Commit Message**: feat: replace usage of `activate --` with `-c`
+- **Source Commit**: `c91cea08`
+- **Source Commit Date**: 2026-02-11 10:52:59 -0600
+- **Source Commit Message**: fix: pass --root-dir to lychee for root-relative link resolution
 
 ## About Flox
 
