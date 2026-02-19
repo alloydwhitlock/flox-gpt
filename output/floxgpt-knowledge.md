@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-18 07:05:56 UTC
+- **Last Updated**: 2026-02-19 07:04:44 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `4b0ae229`
-- **Source Commit Date**: 2026-02-17 15:52:10 -0700
-- **Source Commit Message**: docs(ci): add example using FloxHub environment
+- **Source Commit**: `8f3b67bc`
+- **Source Commit Date**: 2026-02-18 16:59:11 +0000
+- **Source Commit Message**: fix(ci): Only run link checker on PRs
 
 ## About Flox
 
