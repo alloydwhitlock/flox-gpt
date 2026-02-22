@@ -4,7 +4,7 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-21 06:48:55 UTC
+- **Last Updated**: 2026-02-22 06:53:54 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
 - **Source Commit**: `8f3b67bc`
 - **Source Commit Date**: 2026-02-18 16:59:11 +0000
