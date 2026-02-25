@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-24 07:04:43 UTC
+- **Last Updated**: 2026-02-25 07:06:08 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `8f3b67bc`
-- **Source Commit Date**: 2026-02-18 16:59:11 +0000
-- **Source Commit Message**: fix(ci): Only run link checker on PRs
+- **Source Commit**: `c5691f5b`
+- **Source Commit Date**: 2026-02-24 10:10:16 -0600
+- **Source Commit Message**: Refactor Google Tag Manager integration
 
 ## About Flox
 
