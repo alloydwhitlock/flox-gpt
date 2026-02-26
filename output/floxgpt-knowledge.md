@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-02-25 07:06:08 UTC
+- **Last Updated**: 2026-02-26 07:04:45 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `c5691f5b`
-- **Source Commit Date**: 2026-02-24 10:10:16 -0600
-- **Source Commit Message**: Refactor Google Tag Manager integration
+- **Source Commit**: `6cffa11a`
+- **Source Commit Date**: 2026-02-25 17:00:34 -0700
+- **Source Commit Message**: fix: Move scarf integration into mkdocs.yml file
 
 ## About Flox
 
