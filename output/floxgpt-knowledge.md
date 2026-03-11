@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-10 06:56:02 UTC
+- **Last Updated**: 2026-03-11 06:59:06 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `6cffa11a`
-- **Source Commit Date**: 2026-02-25 17:00:34 -0700
-- **Source Commit Message**: fix: Move scarf integration into mkdocs.yml file
+- **Source Commit**: `7ad2321f`
+- **Source Commit Date**: 2026-03-10 21:10:13 -0400
+- **Source Commit Message**: feat: tweak package outputs tutorial
 
 ## About Flox
 
@@ -47,6 +47,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [C/C++](#cc)
 - [Setting up a Catalog Store](#setting-up-a-catalog-store)
 - [Continuous integration/delivery (CI/CD)](#continuous-integrationdelivery-cicd)
+- [Schema versions](#schema-versions)
 - [Composing environments](#composing-environments)
 - [Reusing and combining developer environments](#reusing-and-combining-developer-environments)
 - [Configuration](#configuration)
@@ -69,6 +70,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [Node.js](#nodejs)
 - [Node Version Manager (nvm) migration guide](#node-version-manager-nvm-migration-guide)
 - [Understanding Organizations in FloxHub](#understanding-organizations-in-floxhub)
+- [Selecting package outputs](#selecting-package-outputs)
 - [Paid Feature](#paid-feature)
 - [manifest.toml](#manifesttoml)
 - [Python](#python)
@@ -1198,12 +1200,19 @@ Here we're showing nodejs:
 ```console
 $ flox show nodejs
 nodejs - Event-driven I/O framework for the V8 JavaScript engine
-    nodejs@18.18.2
-    nodejs@18.18.0
-    nodejs@18.17.1
-    nodejs@18.16.1
-    nodejs@18.9.0
-    nodejs@18.7.0
+Catalog: nixpkgs
+Latest:  nodejs@24.13.0
+License: MIT
+Outputs: out* (* installed by default)
+Systems: x86_64-darwin, x86_64-linux, aarch64-linux, aarch64-darwin
+
+Other versions:
+    nodejs@24.13.0
+    nodejs@24.12.0
+    nodejs@22.21.1
+    nodejs@22.20.0
+    nodejs@22.19.0
+    nodejs@22.18.0
     ...
 ```
 
@@ -2388,6 +2397,7 @@ Upstream changes in [nixpkgs][nixpkgs] are reflected in the Flox Catalog daily f
 Source by the Open Source Initiative (OSI).
 * **broken**: indicates if the package is marked as broken in
 [nixpkgs][nixpkgs].
+* **outputs**: the different "parts" of a package ([see here for more details][package-outputs])
 
 [base_catalog]: ./base-catalog.md
 [flox_search]: ../man/flox-search.md
@@ -2398,6 +2408,7 @@ Source by the Open Source Initiative (OSI).
 [nixpkgs]: https://github.com/NixOS/nixpkgs
 [builds]: ./builds.md
 [publishing]: ./publishing.md
+[package-outputs]: ../tutorials/package-outputs.md
 
 ---
 
@@ -2474,6 +2485,9 @@ What this means in practice is:
 - Man pages should be placed in `$out/share/man`.
 - Libraries should be placed in `$out/lib`
 - Configuration should be placed in `$out/etc`.
+
+Packages in the Flox Catalog also have named "outputs" that form the parts of a package (`bin`, `man`, etc).
+Packages built as manifest builds only have a single output: `out`.
 
 ## Pure builds
 
@@ -3985,6 +3999,46 @@ Here are some suggestions for things you can do with your Flox environment in CI
 [layering_guide]: ./layering-multiple-environments.md
 [customizing_guide]: ./customizing-environments.md
 [containerize]: ../man/flox-containerize.md
+
+---
+
+
+## Schema versions
+
+> Source: `concepts/compatibility.md`
+
+---
+title: Compatibility policy
+description: Compatibility policy
+---
+
+Flox is a rapidly evolving tool, but you should still be able to rely on _some_ things being stable from release to release.
+
+As of the 1.10.0 release, the Flox CLI is now schema-aware.
+It will detect when modifications to the environment are backwards compatible, and will migrate your projects for you when changes aren't backwards compatible.
+
+# Schema versions
+
+Prior to CLI version 1.10.0, the manifest had a `version` field indicating the schema version of the manifest.
+This field has been replaced with a `schema-version` field as of CLI version 1.10.0.
+
+When a new manifest schema version is released, its schema version will be the version string of the CLI version that it was released with.
+For instance, since CLI version 1.10.0 released the schema that contains this `schema-version` field, it would contain `schema-version = "1.10.0"`.
+If a future CLI version X.Y.Z introduced a change to the manifest schema, it would introduce `schema-version = "X.Y.Z"`.
+
+# Backwards incompatible changes
+
+CLI version 1.10.0 introduced an `outputs` field for package descriptors so that you can specify exactly which parts of a package you want to include in your environment ([see here for more details](../tutorials/package-outputs.md)).
+The previous manifest schema version (`version = 1`) doesn't support this field. That makes a manifest that contains `mypkg.outputs = "all"` backwards incompatible with a `version = 1` manifest.
+
+On the other hand, nothing about the _other_ manifest sections changed (either in terms of semantics or adding/removing fields) between CLI versions 1.9.1 and 1.10.0. This means that editing the `hook.on-activate` script (for example) would be a backwards compatible change.
+
+# Automatic migrations
+
+When an edit to a manifest introduces a backwards incompatible change, the manifest will be automatically migrated to the latest schema version.
+In all other situations, the manifest will be left at its original schema version.
+
+For example, let's say that you're using a future CLI version X.Y.Z, and it introduces a new schema `schema-version = "X.Y.Z"`. Let's also say that the project you're working on contains a `version = 1` manifest. Updating the `hook.on-activate` script of your manifest is a backwards compatible change, so your manifest would be left at its current schema version (`version = 1`). Installing a package that has non-default outputs is a backwards _incompatible_ change (as of 1.10.0), so the manifest would be migrated to the latest schema version (`schema-version = "X.Y.Z"`).
 
 ---
 
@@ -6292,6 +6346,19 @@ flox pull example-owner/example-env
 
 Run the [`flox auth logout`][flox_auth] command.
 
+## Network connectivity
+
+The Flox CLI communicates with the following domains for FloxHub functionality:
+
+| Domain | Purpose |
+| --- | --- |
+| `api.flox.dev` | API requests from the Flox CLI |
+| `hub.flox.dev` | FloxHub web application and environment storage |
+| `auth.flox.dev` | Authentication services |
+
+If your network restricts outbound traffic,
+ensure that the Flox CLI can reach these domains over HTTPS (port 443).
+
 [flox_website]: https://flox.dev
 [flox_push]: ../man/flox-push.md
 [flox_pull]: ../man/flox-pull.md
@@ -7759,6 +7826,167 @@ For each package, users can:
 Environments and packages created within an organization are visible to all its members, with access governed by the organization’s RBAC configuration.
 
 [floxhub_concept]: ./floxhub.md
+
+---
+
+
+## Selecting package outputs
+
+> Source: `tutorials/package-outputs.md`
+
+---
+title: Selecting package outputs
+description: Learn how to intentionally declare which parts of a package you want to install
+---
+
+# Selecting package outputs
+
+Packages in the [Flox Catalog][catalog-and-pkgs] contain metadata about their origin, license, version, etc.
+They _also_ contain metadata about the various "parts" of a package.
+We call these "parts" of a package its "outputs".
+
+Some packages only have one output, others have many.
+For example, the `hello` package only has one output called `out` (the default in most cases).
+The `curl` package, on the other hand, contains several outputs, one of which is OS-specific: `bin`, `dev`, `man`, `out`, `debug` (only available on Linux), and `devdoc`.
+
+Which outputs exist for a given package and which outputs are installed by default is determined by the package maintainer in the upstream Nixpkgs repository.
+
+In this tutorial you'll learn how to discover which outputs are available for a package, which outputs are installed by default, and how to specify precisely which outputs to install for a package.
+
+## Why?
+
+So why would you want to pick package outputs on your own?
+Aren't the default outputs fine in most cases?
+
+Yes, they are!
+But _most_ cases is not the same as _all_ cases.
+The ability to select package outputs allows you to tailor your environment to exactly what you need.
+
+For example, prior to CLI version 1.10.0, you would get all of `curl`'s outputs.
+That places 48 binaries in `$FLOX_ENV/bin`.
+For CLI versions 1.10.0 and later you only get the default outputs.
+That places 3 binaries in `$FLOX_ENV/bin`.
+That's a big difference!
+
+This can make the surface area of your environment smaller, but it can also make the _download size_ of your environment smaller.
+For example, the difference between the default outputs and all outputs for `curl` is roughly 20MB.
+That's not a _huge_ difference, but this is a relatively small package, and only a single package.
+
+It's a different story once you start including very large packages like parts of the [CUDA Toolkit][cuda], which add up to several GB.
+
+## Discovering outputs
+
+The main way that you'll discover the outputs of a package is with the [`flox show`][flox-show] command.
+
+Let's see what it looks like for the `hello` package:
+
+```text
+$ flox show hello
+hello - Program that produces a familiar, friendly greeting
+Catalog: nixpkgs
+Latest:  hello@2.12.2
+License: GPL-3.0-or-later
+Outputs: out* (* installed by default)
+Systems: aarch64-linux, aarch64-darwin, x86_64-darwin, x86_64-linux
+
+Other versions:
+    hello@2.12.2
+    hello@2.12.1
+    hello@2.12
+    hello@2.10
+```
+
+Notice the line that starts with `Outputs:`.
+This part of the description is a list of the outputs that the package defines.
+The outputs that are installed by default are marked with an asterisk `*`.
+In the case of `hello`, there's only one output (`out`) and it's installed by default, which you can tell because it's listed as `out*`.
+
+Let's see what it looks like for a more complicated package like `curl`:
+
+```text
+$ flox show curl
+curl - Command line tool for transferring files with URL syntax
+Catalog: nixpkgs
+Latest:  curl@8.18.0
+License: curl
+Outputs: bin*, dev, man*, out, debug, devdoc (* installed by default)
+Systems: aarch64-linux, x86_64-darwin, aarch64-darwin, x86_64-linux
+
+Other versions:
+    curl@8.18.0
+    curl@8.17.0
+    curl@8.16.0
+    curl@8.14.1
+    curl@8.13.0
+    curl@8.12.1
+    curl@8.12.0
+    curl@8.11.1
+    curl@8.11.0
+    curl@8.10.1
+    ...(truncated for space)
+```
+
+As mentioned previously, `curl` has several outputs, with only `bin` and `man` being installed by default.
+
+## Which output do I want?
+
+Unfortunately, there are no hard rules for which outputs can exist or even when a package author should split the package into multiple outputs.
+This is an idiosyncracy of where the Flox Catalog gets its packages from (Nixpkgs).
+
+On the other hand, there are some relatively well adhered to conventions for the set of possible output names and what they contain:
+
+- `bin`: executable programs
+- `man`: manual pages
+- `lib`: dynamic libraries
+- `dev`: header files and/or tools needed during development
+- `debug`: debug symbols for the executables and libraries in the package
+- `out`: typically the "main" output or the only output
+
+The `curl` package is one of these idiosyncratic cases because the `out` output (1) isn't installed by default, and (2) is where the `libcurl` dynamic library is placed rather than a `lib` output.
+
+## Selecting outputs
+
+Prior to version 1.10.0 of the Flox CLI, all outputs of a package were installed when a package was added to an environment.
+As of CLI version 1.10.0 you can specify which outputs to install using a manifest with `schema-version` 1.10.0 or later (note that the `schema-version` field replaced the `version` field in CLI version 1.10.0).
+
+The most flexible way to specify outputs is by setting the `outputs` field on a package in your manifest. The `outputs` field has three behaviors:
+
+- When omitted, only the default outputs are installed
+- When set to `"all"`, all outputs are installed
+- When set to a list of strings (`["foo", "bar"]`), only those specific outputs are installed
+
+```toml
+schema-version = "1.10.0"
+
+[install]
+curl.pkg-path = "curl"
+# Default: `outputs` is unspecified, so only the default outputs are installed
+
+# Using this would install all of curl's outputs
+# curl.outputs = "all"
+
+# Using this would only install the "bin" output
+# curl.outputs = [ "bin" ]
+```
+
+You can also specify which outputs to install via the [`flox install`][flox-install] command using the following syntax:
+
+```{ .bash .copy }
+flox install curl^bin,man,out
+```
+
+A comma-separated list after a `^` is treated as a list of outputs you'd like to install.
+Note that this only allows you to install _additional_ outputs.
+
+## Conclusion
+
+Hopefully you now have an understanding that packages consist of chunks called "outputs" and that you have the ability to select precisely which ones you want to include in an environment.
+
+[catalog-and-pkgs]: ../concepts/packages-and-catalog.md
+[flox-show]: ../man/flox-show.md
+[flox-install]: ../man/flox-install.md
+[flox-uninstall]: ../man/flox-uninstall.md
+[cuda]: ./cuda.md
 
 ---
 
