@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-11 06:59:06 UTC
+- **Last Updated**: 2026-03-12 07:00:36 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `7ad2321f`
-- **Source Commit Date**: 2026-03-10 21:10:13 -0400
-- **Source Commit Message**: feat: tweak package outputs tutorial
+- **Source Commit**: `d0194693`
+- **Source Commit Date**: 2026-03-11 12:20:38 -0600
+- **Source Commit Message**: docs: add context about orphaned Nix build users on older macOS
 
 ## About Flox
 
@@ -39,6 +39,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [What is the Flox Catalog?](#what-is-the-flox-catalog)
 - [Manifest Builds](#manifest-builds)
 - [Services](#services)
+- [Troubleshooting installation](#troubleshooting-installation)
 - [Troubleshooting](#troubleshooting)
 - [Activating environments](#activating-environments)
 - [What is the Base Catalog](#what-is-the-base-catalog)
@@ -2499,10 +2500,9 @@ This is convenient because it allows your build scripts to work as they do in yo
 However, that also implies that builds can access and embed information about files (e.g. configuration in `$HOME`) or programs (e.g. system wide applications) that are specific to your machine.
 This can subsequently hurt the reproducibility of the build script and the ability to run binaries on other machines where those referenced files do not exist.
 
-When set to `sandbox = "pure"` the Flox CLI is instructed to perform the build in a clean environment.
-This entails copying all files tracked by `git` into a temporary directory and running the build in a sandboxed environment that limits filesystem access to those files copied to the temporary build directory.
+When set to `sandbox = "pure"` the Flox CLI is instructed to perform the build in a clean environment. This provides much stronger guarantees that the build is reproducible, but will often require some additional changes to your build scripts.
+Only files tracked by a Git repository (`git add`ed but not necessarily committed) are copied into a temporary build directory, and filesystem access is limited to that directory.
 Sandboxed builds on Linux are also restricted from accessing the network, but the sandboxing mechanisms on macOS are somewhat limited and thus pure builds on macOS **_will still have network access_**.
-This provides much stronger guarantees that the build is reproducible, but will often require some additional changes to your build scripts.
 
 ### Vendoring dependencies
 
@@ -2792,6 +2792,190 @@ displayed.
 
 Logs for the service manager itself are stored as `services.*.log` files in the
 `.flox/logs` directory of your environment.
+
+---
+
+
+## Troubleshooting installation
+
+> Source: `install-flox/troubleshooting.md`
+
+---
+title: Troubleshooting installation
+description: How to diagnose and fix common Flox installation issues
+---
+
+
+# Troubleshooting installation
+
+If you run into problems installing Flox,
+this page will help you diagnose what went wrong and find a solution.
+
+## Finding install logs
+
+The first step in debugging a failed installation is to find the install logs.
+The location depends on your operating system.
+
+### macOS
+
+The macOS system installer logs to `/var/log/install.log`.
+To watch log output in real time while running the Flox installer,
+open a separate terminal window and run:
+
+```{ .sh .code-command .copy }
+tail -f /var/log/install.log
+```
+
+Then start the Flox installation in another window.
+The log will show detailed output from each phase of the installation,
+including any errors in pre-install or post-install scripts.
+
+    The install log can be thousands of lines long.
+    Search for `error`, `fail`, or `flox` to find relevant entries.
+
+### Linux
+
+On Linux the Flox installer writes a log file to `/tmp` with a timestamped
+filename:
+
+```text
+/tmp/flox-installation.log.<timestamp>
+```
+
+For example:
+
+```text
+/tmp/flox-installation.log.1773188428
+```
+
+List matching files to find it:
+
+```{ .sh .code-command .copy }
+ls -al /tmp/flox-installation.log.*
+```
+
+## Previous Nix installation
+
+The most common cause of a failed Flox installation is
+a previous Nix installation on the system.
+In some cases the Flox installer may report success
+but fail to actually install the `flox` binary.
+
+### Symptoms
+
+- The installer completes without errors,
+  but `flox --version` returns "command not found."
+- The post-install script exits early because it detects an existing Nix
+  configuration.
+
+### Diagnosis
+
+Check whether a previous Nix installation is present:
+
+```{ .sh .code-command .copy }
+ls -la /nix/var/nix/db/db.sqlite
+```
+
+```{ .sh .code-command .copy }
+cat /etc/nix/nix.conf
+```
+
+If either of these exist and were not created by Flox,
+a previous Nix installation is likely interfering.
+
+### Solution: remove the previous Nix installation
+
+You will need to remove the previous Nix installation before installing Flox.
+
+=== "Determinate Nix Installer"
+
+    If Nix was installed with the
+    [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer),
+    run:
+
+    ```{ .sh .code-command .copy }
+    /nix/nix-installer uninstall
+    ```
+
+    Then re-run the Flox installer.
+
+=== "Other Nix installations"
+
+    For Nix installations that were not made with the Determinate Nix Installer,
+    follow the
+    [official Nix uninstall instructions](https://nix.dev/manual/nix/stable/installation/uninstall)
+    for your platform.
+
+    Then re-run the Flox installer.
+
+    The Flox installer performs some opinionated configuration of Nix.
+    See the "Replacing an existing Nix installation" section on the
+    [Install](install.md) page for details on what changes are made.
+
+## Orphaned Nix build users (macOS)
+
+On macOS, a previous Nix installation may have created system users
+named `_nixbld1` through `_nixbld32`.
+If these users were not fully removed during uninstallation,
+the Flox installer's post-install script can fail because it expects to create
+these users with specific UIDs.
+
+This is particularly common with Nix installations that are two or more years old
+(prior to macOS 15).
+See [NixOS/nix#10892](https://github.com/NixOS/nix/issues/10892) for background.
+
+### Symptoms
+
+The install log (`/var/log/install.log`) contains an error like:
+
+```text
+It seems the build user _nixbld8 already exists, but with the UID '308'.
+```
+
+### Solution
+
+Remove the orphaned build users and then re-install Flox.
+
+1. Delete the orphaned build users:
+
+    ```{ .sh .code-command .copy }
+    for i in $(seq 1 32); do sudo dscl . -delete /Users/_nixbld$i 2>/dev/null; done
+    ```
+
+2. If the `/nix` APFS volume is still mounted, remove it:
+
+    ```{ .sh .code-command .copy }
+    sudo diskutil apfs deleteVolume /nix
+    ```
+
+3. Re-install Flox following the instructions on the [Install](install.md) page.
+
+## Homebrew uninstall did not fully clean up (macOS)
+
+If you previously installed Flox via Homebrew and the uninstallation did not
+complete cleanly (for example, the `/nix` volume could not be unmounted),
+you may need to force a full cleanup before re-installing.
+
+### Solution
+
+```{ .sh .code-command .copy }
+brew uninstall --force --zap flox
+```
+
+After rebooting, re-install Flox following the instructions on the
+[Install](install.md) page.
+
+## Reporting issues
+
+If your issue is not covered here,
+please report it on [Flox Discourse](https://discourse.flox.dev){:target="_blank"}
+with:
+
+- Your operating system and version
+- The installation method you used (Pkg, Homebrew, Debian, RPM, etc.)
+- The full install log output (see [Finding install logs](#finding-install-logs)
+  above)
+- Any error messages you encountered
 
 ---
 
@@ -3920,11 +4104,11 @@ jobs:
         with:
           command: npm run build
 
-    - name: Activate remote environment
-      uses: flox/activate-action@v1
-      with:
-        environment: my-username/my-netlify-env
-        command: netlify deploy
+      - name: Activate remote environment
+        uses: flox/activate-action@v1
+        with:
+          environment: my-username/my-netlify-env
+          command: netlify deploy
 ```
 
 1. You are looking at an example project, your project will probably look a little different. Important parts of how to integrate Flox with Github Actions are highlighted below.
@@ -5059,7 +5243,7 @@ to the environment in that directory, rather than your default environment.
 
 Nevertheless, it's still easy to install whatever you wish to your `default`
 environment.
-All you need to do is pass the `-d` argument to the `install` command, like so:
+All you need to do is pass the `-r` argument to the `install` command, like so:
 
 ```{ .bash .copy }
 flox install -r <your username>/default ~ hello
