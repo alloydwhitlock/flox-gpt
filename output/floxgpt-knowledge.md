@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-12 07:00:36 UTC
+- **Last Updated**: 2026-03-13 06:59:22 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `d0194693`
-- **Source Commit Date**: 2026-03-11 12:20:38 -0600
-- **Source Commit Message**: docs: add context about orphaned Nix build users on older macOS
+- **Source Commit**: `425b2a06`
+- **Source Commit Date**: 2026-03-12 09:06:02 +0000
+- **Source Commit Message**: docs: remove outdated early access language for builds
 
 ## About Flox
 
@@ -3828,7 +3828,6 @@ See the [builds][extra-builds] concept page for examples of what else you can bu
 [extra-builds]: ../concepts/manifest-builds.md#example-configuration-files
 [publish-concept]: ../concepts/publishing.md
 [organizations-concept]: ../concepts/organizations.md
-[early]: https://flox.dev/early/
 
 ---
 
@@ -6362,11 +6361,8 @@ you need to build a container so that it can be deployed.
     If your environment already contains the programs you want to run in
     production, you're in good shape.
 
-    There is a work in progress feature for producing build artifacts from
-    a Flox environment.
-    We have some exciting things happening in this space!
-    If you're interested in early access for this feature,
-    see our [early access page][early].
+    You can also produce build artifacts from a Flox environment.
+    See the [builds documentation][builds] for more information.
 
 === "Containers"
 
@@ -6389,7 +6385,7 @@ you need to build a container so that it can be deployed.
 [services-start]: ../man/flox-services-start.md
 [services]: ../concepts/services.md
 [manifest]: ../concepts/environments.md#manifesttoml
-[early]: https://flox.dev/early/
+[builds]: ../concepts/builds.md
 [ci-cd]: ../tutorials/ci-cd.md
 
 ---
