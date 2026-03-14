@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-13 06:59:22 UTC
+- **Last Updated**: 2026-03-14 06:53:33 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `425b2a06`
-- **Source Commit Date**: 2026-03-12 09:06:02 +0000
-- **Source Commit Message**: docs: remove outdated early access language for builds
+- **Source Commit**: `bdb9ae69`
+- **Source Commit Date**: 2026-03-13 15:59:48 -0400
+- **Source Commit Message**: chore: remove pillow from dependabot ignore list
 
 ## About Flox
 
