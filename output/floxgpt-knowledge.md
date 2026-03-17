@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-16 07:23:22 UTC
+- **Last Updated**: 2026-03-17 07:09:43 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `bdb9ae69`
-- **Source Commit Date**: 2026-03-13 15:59:48 -0400
-- **Source Commit Message**: chore: remove pillow from dependabot ignore list
+- **Source Commit**: `4e855fb3`
+- **Source Commit Date**: 2026-03-16 09:08:36 -0400
+- **Source Commit Message**: chore(deps): bump pillow from 11.2.1 to 12.1.1
 
 ## About Flox
 
