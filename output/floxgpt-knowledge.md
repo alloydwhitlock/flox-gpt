@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-18 07:05:39 UTC
+- **Last Updated**: 2026-03-19 07:02:49 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `1a885c69`
-- **Source Commit Date**: 2026-03-17 17:11:43 -0400
-- **Source Commit Message**: chore: Update Flox environment
+- **Source Commit**: `a5f8b6c3`
+- **Source Commit Date**: 2026-03-18 14:41:58 -0600
+- **Source Commit Message**: Improve installer troubleshooting page
 
 ## About Flox
 
@@ -29,6 +29,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [Replacing A Nix Installation](#replacing-a-nix-installation)
 - [Uninstall Flox { #uninstall-flox }](#uninstall-flox--uninstall-flox-)
 - [Uninstall](#uninstall)
+- [Uninstalling Flox Package](#uninstalling-flox-package)
 - [Creating environments](#creating-environments)
 - [Customizing the shell environment](#customizing-the-shell-environment)
 - [What is a Flox environment?](#what-is-a-flox-environment)
@@ -893,6 +894,116 @@ email](mailto:hello@flox.dev).
 
 Here's how to **completely remove `flox` from your system**.
 
+{%
+    include-markdown "include/uninstalling-Flox-package.md"
+%}
+
+=== "Nix - Generic"
+
+    If you've installed flox to the system-wide `default` profile
+
+    ``` { .text .code-command .copy }
+    sudo -H nix profile remove \
+            '.*flox' \
+            --profile /nix/var/nix/profiles/default \
+            --experimental-features "nix-command flakes"
+    ```
+
+    Or, if you've installed flox to your own _personal_ profile
+
+    ``` { .text .code-command .copy }
+    nix profile remove \
+            '.*flox' \
+            --experimental-features "nix-command flakes"
+    ```
+
+    Or, if you've declared Flox using a flake, remove the Flake
+
+=== "WSL"
+
+    Please follow the instructions provided on either the Debian or RPM tab
+    (whichever matches the existing Linux Distribution installed with your
+    WSL) to uninstall Flox.
+
+[flox_discourse]: https://discourse.flox.dev
+
+---
+
+
+## Uninstall
+
+> Source: `k8s/install/uninstall.md`
+
+---
+title: "Uninstall"
+description: "Uninstalling Imageless Kubernetes from any cluster"
+---
+
+This guide describes how to remove Imageless Kubernetes from a cluster.
+
+First, remove the `RuntimeClass` with:
+
+```sh
+kubectl delete runtimeclass flox
+```
+
+Then follow the installation-method specific guidance below.
+
+## Amazon EKS
+
+If a separate node group was used for Imageless Kubernetes, removing that node group and the `RuntimeClass` is all that is required to uninstall.
+
+### Terraform
+
+If Terraform was used to add a node group to an existing cluster:
+
+- Remove the `eks_managed_node_group` resource from your configuration
+- Apply the updated configuration
+
+### eksctl
+
+If `eksctl` was used, remove the node group with:
+
+```sh
+eksctl delete nodegroup -f nodegroup.yaml
+```
+
+where `nodegroup.yaml` is the file that was used to create it.
+
+Alternatively, remove the node group directly from the AWS management console.
+
+## Self-managed
+
+First, remove the Flox runtime from the `containerd` configuration on each node.
+
+The installer used in the [installation instructions][self-managed] makes a backup of the original configuration
+in `/etc/containerd/config.toml.bak.xx` where `xx` is an arbitrary number.
+
+Restore the backup with:
+
+```sh
+mv /etc/containerd/config.toml.bak.xx /etc/containerd/config.toml
+systemctl restart containerd
+```
+
+Then remove the shim from each node with:
+
+```sh
+rm /usr/local/bin/containerd-shim-flox-v2
+```
+
+And finally, uninstall Flox from each node by following the instructions from the [Uninstall Flox][uninstall-flox] page.
+
+[self-managed]: ./self-managed.md
+[uninstall-flox]: ../../install-flox/uninstall.md
+
+---
+
+
+## Uninstalling Flox Package
+
+> Source: `include/uninstalling-Flox-package.md`
+
 === "MacOS - Pkg"
 
 
@@ -1009,105 +1120,6 @@ Here's how to **completely remove `flox` from your system**.
 
         Complete!
         ```
-
-=== "Nix - Generic"
-
-    If you've installed flox to the system-wide `default` profile
-
-    ``` { .text .code-command .copy }
-    sudo -H nix profile remove \
-            '.*flox' \
-            --profile /nix/var/nix/profiles/default \
-            --experimental-features "nix-command flakes"
-    ```
-
-    Or, if you've installed flox to your own _personal_ profile
-
-    ``` { .text .code-command .copy }
-    nix profile remove \
-            '.*flox' \
-            --experimental-features "nix-command flakes"
-    ```
-
-    Or, if you've declared Flox using a flake, remove the Flake
-
-=== "WSL"
-
-    Please follow the instructions provided on either the Debian or RPM tab
-    (whichever matches the existing Linux Distribution installed with your
-    WSL) to uninstall Flox.
-
-[flox_discourse]: https://discourse.flox.dev
-
----
-
-
-## Uninstall
-
-> Source: `k8s/install/uninstall.md`
-
----
-title: "Uninstall"
-description: "Uninstalling Imageless Kubernetes from any cluster"
----
-
-This guide describes how to remove Imageless Kubernetes from a cluster.
-
-First, remove the `RuntimeClass` with:
-
-```sh
-kubectl delete runtimeclass flox
-```
-
-Then follow the installation-method specific guidance below.
-
-## Amazon EKS
-
-If a separate node group was used for Imageless Kubernetes, removing that node group and the `RuntimeClass` is all that is required to uninstall.
-
-### Terraform
-
-If Terraform was used to add a node group to an existing cluster:
-
-- Remove the `eks_managed_node_group` resource from your configuration
-- Apply the updated configuration
-
-### eksctl
-
-If `eksctl` was used, remove the node group with:
-
-```sh
-eksctl delete nodegroup -f nodegroup.yaml
-```
-
-where `nodegroup.yaml` is the file that was used to create it.
-
-Alternatively, remove the node group directly from the AWS management console.
-
-## Self-managed
-
-First, remove the Flox runtime from the `containerd` configuration on each node.
-
-The installer used in the [installation instructions][self-managed] makes a backup of the original configuration
-in `/etc/containerd/config.toml.bak.xx` where `xx` is an arbitrary number.
-
-Restore the backup with:
-
-```sh
-mv /etc/containerd/config.toml.bak.xx /etc/containerd/config.toml
-systemctl restart containerd
-```
-
-Then remove the shim from each node with:
-
-```sh
-rm /usr/local/bin/containerd-shim-flox-v2
-```
-
-And finally, uninstall Flox from each node by following the instructions from the [Uninstall Flox][uninstall-flox] page.
-
-[self-managed]: ./self-managed.md
-[uninstall-flox]: ../../install-flox/uninstall.md
 
 ---
 
@@ -2819,19 +2831,22 @@ The location depends on your operating system.
 ### macOS
 
 The macOS system installer logs to `/var/log/install.log`.
-To watch log output in real time while running the Flox installer,
-open a separate terminal window and run:
 
-```{ .sh .code-command .copy }
-tail -f /var/log/install.log
+The install log contains logs from installations of other installed macOS packages, so to get just the lines relevant to Flox, run this script:
+
+```{ .bash .copy }
+awk '
+/com\.floxdev\.flox/ {
+  if (first == 0) first = NR
+  last = NR
+}
+{ lines[NR] = $0 }
+END {
+  if (first && last && first <= last) {
+    for (i = first; i <= last; i++) print lines[i]
+  }
+}' /var/log/install.log
 ```
-
-Then start the Flox installation in another window.
-The log will show detailed output from each phase of the installation,
-including any errors in pre-install or post-install scripts.
-
-    The install log can be thousands of lines long.
-    Search for `error`, `fail`, or `flox` to find relevant entries.
 
 ### Linux
 
@@ -2856,36 +2871,35 @@ ls -al /tmp/flox-installation.log.*
 
 ## Previous Nix installation
 
-The most common cause of a failed Flox installation is
-a previous Nix installation on the system.
-In some cases the Flox installer may report success
-but fail to actually install the `flox` binary.
+The most common cause of a failed Flox installation is a previous Nix installation on the system.
+Although the Flox installer attempts to install over an existing Nix
+installation, it's possible for a prior installation to end up in a non-standard
+state that the Flox installer doesn't know how to handle.
 
-### Symptoms
+### Solution: manually cleanup previous installation state
 
-- The installer completes without errors,
-  but `flox --version` returns "command not found."
-- The post-install script exits early because it detects an existing Nix
-  configuration.
-
-### Diagnosis
-
-Check whether a previous Nix installation is present:
-
-```{ .sh .code-command .copy }
-ls -la /nix/var/nix/db/db.sqlite
-```
-
-```{ .sh .code-command .copy }
-cat /etc/nix/nix.conf
-```
-
-If either of these exist and were not created by Flox,
-a previous Nix installation is likely interfering.
+In some cases, it may be possible to workaround an error in the installation log
+for your system (`/var/log/install.log` or `/tmp/flox-installation.log.*`).
+This might involved manually removing parts of the pre-existing Nix installation.
 
 ### Solution: remove the previous Nix installation
 
-You will need to remove the previous Nix installation before installing Flox.
+The most surefire way to get back to a clean state is to completely remove the prior installation.
+Note that this will completely remove `/nix/store`, so all Nix packages will
+have to be re-downloaded or re-built.
+
+#### Flox uninstaller
+
+If you have a partial Flox installation, you can run Flox uninstallation.
+
+{%
+    include-markdown "include/uninstalling-Flox-package.md"
+%}
+
+#### Nix uninstaller
+
+If you have a prior Nix installation but haven't installed Flox, follow the
+uninstallation instructions for your existing Nix installation method:
 
 === "Determinate Nix Installer"
 
@@ -2908,11 +2922,9 @@ You will need to remove the previous Nix installation before installing Flox.
 
     Then re-run the Flox installer.
 
-    The Flox installer performs some opinionated configuration of Nix.
-    See the "Replacing an existing Nix installation" section on the
-    [Install](install.md) page for details on what changes are made.
+## Common problems
 
-## Orphaned Nix build users (macOS)
+### Orphaned Nix build users (macOS)
 
 On macOS, a previous Nix installation may have created system users
 named `_nixbld1` through `_nixbld32`.
@@ -2924,7 +2936,7 @@ This is particularly common with Nix installations that are two or more years ol
 (prior to macOS 15).
 See [NixOS/nix#10892](https://github.com/NixOS/nix/issues/10892) for background.
 
-### Symptoms
+#### Symptoms
 
 The install log (`/var/log/install.log`) contains an error like:
 
@@ -2932,7 +2944,7 @@ The install log (`/var/log/install.log`) contains an error like:
 It seems the build user _nixbld8 already exists, but with the UID '308'.
 ```
 
-### Solution
+#### Solution
 
 Remove the orphaned build users and then re-install Flox.
 
@@ -2950,13 +2962,13 @@ Remove the orphaned build users and then re-install Flox.
 
 3. Re-install Flox following the instructions on the [Install](install.md) page.
 
-## Homebrew uninstall did not fully clean up (macOS)
+### Homebrew uninstall did not fully clean up (macOS)
 
 If you previously installed Flox via Homebrew and the uninstallation did not
 complete cleanly (for example, the `/nix` volume could not be unmounted),
 you may need to force a full cleanup before re-installing.
 
-### Solution
+#### Solution
 
 ```{ .sh .code-command .copy }
 brew uninstall --force --zap flox
@@ -2965,21 +2977,21 @@ brew uninstall --force --zap flox
 After rebooting, re-install Flox following the instructions on the
 [Install](install.md) page.
 
-## Flox builds from source when installed as a Nix flake input
+### Flox builds from source when installed as a Nix flake input
 
 If you consume Flox as a flake input in your NixOS or nix-darwin configuration,
 you may find that Nix builds Flox from source instead of fetching it from the
 Flox binary cache.
 There are two common causes.
 
-### Using `follows` for nixpkgs
+#### Using `follows` for nixpkgs
 
 If your flake input for Flox uses `inputs.nixpkgs.follows = "nixpkgs"`,
 the resulting store paths will differ from the ones in the Flox binary cache
 because the cache was built against the nixpkgs revision pinned in the
 [Flox flake.lock](https://github.com/flox/flox).
 
-#### Solution
+##### Solution
 
 Remove the `follows` directive so that Flox uses its own pinned nixpkgs:
 
@@ -2996,7 +3008,7 @@ Remove the `follows` directive so that Flox uses its own pinned nixpkgs:
 The trade-off is an extra copy of nixpkgs in your Nix store,
 but Flox's dependencies and yours will coexist without collisions.
 
-### Flox binary cache not in `substituters`
+#### Flox binary cache not in `substituters`
 
 Even with the correct Nix configuration files,
 the Flox binary cache (`cache.flox.dev`) may appear only in
@@ -3007,7 +3019,7 @@ The `trusted-substituters` setting only controls which caches
 non-root users are *permitted* to add via `extra-substituters` —
 it does not cause Nix to query those caches on its own.
 
-#### Diagnosis
+##### Diagnosis
 
 ```{ .sh .code-command .copy }
 nix config show | grep substituters
@@ -3017,7 +3029,7 @@ If `cache.flox.dev` appears in `trusted-substituters` but **not** in
 `substituters`, Nix will never query it and will fall back to building
 from source.
 
-#### Solution
+##### Solution
 
 Add the Flox cache to `extra-substituters` so that it is merged into
 `substituters` and actually queried during builds.
@@ -3049,9 +3061,12 @@ nix config show | grep substituters
 
 ## Reporting issues
 
-If your issue is not covered here,
-please report it on [Flox Discourse](https://discourse.flox.dev){:target="_blank"}
-with:
+If your issue is not covered here, ask for help in our
+[Slack :fontawesome-brands-slack:](https://go.flox.dev/slack){:target="_blank"}
+or [open an issue on GitHub](https://github.com/flox/flox/issues/new/choose),
+filling out the `Install failure` Issue template.
+
+Please include:
 
 - Your operating system and version
 - The installation method you used (Pkg, Homebrew, Debian, RPM, etc.)
