@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-20 07:00:44 UTC
+- **Last Updated**: 2026-03-21 06:51:03 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `a5f8b6c3`
-- **Source Commit Date**: 2026-03-18 14:41:58 -0600
-- **Source Commit Message**: Improve installer troubleshooting page
+- **Source Commit**: `a36e27b9`
+- **Source Commit Date**: 2026-03-20 09:12:30 -0700
+- **Source Commit Message**: Add Extensions page with VS Code and MCP tabs
 
 ## About Flox
 
@@ -63,6 +63,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [Gitlab Ci](#gitlab-ci)
 - [Go](#go)
 - [Homebrew migration guide](#homebrew-migration-guide)
+- [Extensions](#extensions)
 - [Intro](#intro)
 - [JVM](#jvm)
 - [K8S Shim Cli Version](#k8s-shim-cli-version)
@@ -7160,6 +7161,133 @@ We recommend that the Flox default environment activation lines appear lowest in
 [install]: ../../man/flox-install.md
 [uninstall]: ../../man/flox-uninstall.md
 [activate]: ../../man/flox-activate.md
+
+---
+
+
+## Extensions
+
+> Source: `install-flox/ide-extensions.md`
+
+---
+title: Extensions
+description: IDE extensions and AI agent integrations for Flox
+---
+
+# Extensions
+
+=== "VS Code"
+
+    The [Flox extension for VS Code][marketplace] brings full
+    environment management into VS Code and compatible editors
+    like [Cursor][cursor].
+
+    ## Install from the Marketplace
+
+            - Flox CLI installed ([install instructions](install.md))
+        - VS Code 1.87.0 or later
+
+    1. Open the Extensions view (++cmd+shift+x++ on macOS,
+       ++ctrl+shift+x++ on Linux)
+    2. Search for **Flox**
+    3. Click **Install**
+
+    ## Build and install from source
+
+    If you prefer to install manually, you can build a `.vsix` file
+    from the source repository:
+
+    1. Clone the repository and check out a release tag:
+
+        ```{ .sh .code-command .copy }
+        git clone https://github.com/flox/flox-vscode.git
+        cd flox-vscode
+        git checkout v1.0.1
+        ```
+
+    2. Activate the Flox environment and build the package:
+
+        ```{ .sh .code-command .copy }
+        flox activate
+        npm run package
+        ```
+
+        This creates a `.vsix` file in the project directory.
+
+    3. Install the `.vsix` file using the Command Palette
+       (++cmd+shift+p++ on macOS, ++ctrl+shift+p++ on Linux):
+
+        - Run **Extensions: Install from VSIX...**
+        - Select the generated `.vsix` file
+
+        Or install from the command line:
+
+        ```{ .sh .code-command .copy }
+        code --install-extension flox-*.vsix
+        ```
+
+    ## Source code
+
+    The extension is open source:
+    [github.com/flox/flox-vscode][repo]
+
+    [marketplace]: https://marketplace.visualstudio.com/items?itemName=flox.flox
+    [cursor]: https://cursor.com
+    [repo]: https://github.com/flox/flox-vscode
+
+=== "MCP and Skills"
+
+    [Flox Agentic][agentic] is an MCP server and skill library that
+    gives AI coding agents access to Flox environments.
+
+    ## Install the MCP server
+
+    ```{ .sh .code-command .copy }
+    flox install flox/flox-mcp-server
+    ```
+
+    ## Claude Code
+
+    Add the MCP server to your project:
+
+    ```{ .sh .code-command .copy }
+    claude mcp add flox -- flox-mcp
+    ```
+
+    Or add it user-wide:
+
+    ```{ .sh .code-command .copy }
+    claude mcp add --scope user flox -- flox-mcp
+    ```
+
+    ## Cursor
+
+    Add the following to `~/.cursor/mcp.json`:
+
+    ```{ .json .copy }
+    {
+      "mcpServers": {
+        "flox": {
+          "command": "flox-mcp"
+        }
+      }
+    }
+    ```
+
+    ## Other MCP clients
+
+    Any editor or agent that supports the
+    [Model Context Protocol][mcp] can use Flox Agentic.
+    Point your client at the `flox-mcp` command using stdio
+    transport.
+
+    ## Learn more
+
+    Full documentation and source code:
+    [github.com/flox/flox-agentic][agentic]
+
+    [agentic]: https://github.com/flox/flox-agentic
+    [mcp]: https://modelcontextprotocol.io
 
 ---
 
