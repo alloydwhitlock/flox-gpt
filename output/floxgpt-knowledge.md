@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-27 07:13:37 UTC
+- **Last Updated**: 2026-03-28 07:02:57 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `82cd62da`
-- **Source Commit Date**: 2026-03-22 22:19:35 -0400
-- **Source Commit Message**: docs: address PR review feedback on Flox in 5 minutes page
+- **Source Commit**: `cffacaef`
+- **Source Commit Date**: 2026-03-27 17:27:00 +0000
+- **Source Commit Message**: fix(install): Warn about replacing Nix installs
 
 ## About Flox
 
@@ -139,7 +139,7 @@ Flox makes it easy to work locally, test in CI, and deploy to production—all w
 
     Flox brings the power of Nix to your team, and can simplify your workflows.
 
-    [:octicons-arrow-right-24: Install Flox with flakes or profiles](install-flox/install.md#__tabbed_1_5){:target="_blank"}
+    [:octicons-arrow-right-24: Install Flox with flakes or profiles](install-flox/install.md#nix-generic){:target="_blank"}
 
     [:octicons-arrow-right-24: Flox brings Nix to your teams](https://flox.dev/blog/enterprise-nix-its-time-to-bring-nix-to-work/){:target="_blank"}
 
@@ -250,7 +250,7 @@ description: How to install or upgrade the Flox CLI
 
 # Install Flox { #install-flox }
 
-=== "MacOS - Pkg"
+=== "MacOS (Pkg)"
 
     **Download and install the package that matches your machine's architecture.**
 
@@ -283,7 +283,7 @@ description: How to install or upgrade the Flox CLI
 
     Download and install the latest image as described above.
 
-=== "MacOS - Homebrew"
+=== "MacOS (Homebrew)"
 
     **Brew install**
 
@@ -413,10 +413,10 @@ description: How to install or upgrade the Flox CLI
     sudo dnf update flox
     ```
 
-=== "Nix - Generic"
+=== "Nix (Generic)"
 
 
-        Use the Flox installer for your system to allow some opinionated configuration of Nix, or use these "Nix - Generic" instructions for full control of your Nix installation.
+        Use the Flox installer for your system to allow some opinionated configuration of Nix, or use these "Nix (Generic)" instructions for full control of your Nix installation.
 
     **Install Nix**
 
@@ -603,7 +603,7 @@ description: How to install or upgrade the Flox CLI
 
     Or, if you've declared Flox using a flake, run `nix flake update`.
 
-=== "Nix - NixOS"
+=== "Nix (NixOS)"
 
     **Configure Substituters**
 
@@ -846,8 +846,12 @@ description: How to install or upgrade the Flox CLI
 
 > Source: `include/replacing-a-Nix-installation.md`
 
-The Flox installer will perform some opinionated configuration of Nix, but Nix will still be usable.
-If you want full control of your Nix installation, see the instructions for installing Flox in the "Nix - Generic" tab above.
+Flox will reconfigure an existing Nix installation. These changes are designed to improve the overall user experience and make the Nix installation more reliable and easier to support, but it's worth noting that **anyone wishing to revert to a "vanilla" Nix installation after installing Flox will need to re-install Nix**.
+
+
+If you want retain full control of your Nix installation, see the [Nix (Generic)](#nix-generic) instructions.
+
+---
 
 When installing over a previous installation of Nix the Flox installation
 will:
@@ -862,8 +866,6 @@ will:
 1. Overwrite the system-wide `/etc/nix/nix.conf`
 1. (If applicable) convert the Nix installation to a multi-user install
 1. Reconfigure the `nix-daemon` invocation
-
-These changes are designed to improve the overall user experience and make the Nix installation more reliable and easier to support, but it's worth noting that **anyone wishing to revert to a "vanilla" Nix installation after installing Flox will need to re-install Nix**.
 
 If you are installing over a previous installation of Nix we suggest that you install Flox to a test machine or VM to gain familiarity with it first.
 
@@ -899,7 +901,7 @@ Here's how to **completely remove `flox` from your system**.
     include-markdown "include/uninstalling-Flox-package.md"
 %}
 
-=== "Nix - Generic"
+=== "Nix (Generic)"
 
     If you've installed flox to the system-wide `default` profile
 
@@ -1005,7 +1007,7 @@ And finally, uninstall Flox from each node by following the instructions from th
 
 > Source: `include/uninstalling-Flox-package.md`
 
-=== "MacOS - Pkg"
+=== "MacOS (Pkg)"
 
 
     Be sure to back up the system and/or extract any important Nix-related
@@ -1025,7 +1027,7 @@ And finally, uninstall Flox from each node by following the instructions from th
     ```
 
     We recommend rebooting your system after uninstalling Flox.
-=== "MacOS - Homebrew"
+=== "MacOS (Homebrew)"
 
 
     Be sure to back up the system and/or extract any important Nix-related
