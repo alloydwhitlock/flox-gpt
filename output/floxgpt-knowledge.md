@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-03-31 07:21:06 UTC
+- **Last Updated**: 2026-04-01 07:26:25 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `cffacaef`
-- **Source Commit Date**: 2026-03-27 17:27:00 +0000
-- **Source Commit Message**: fix(install): Warn about replacing Nix installs
+- **Source Commit**: `c8760c47`
+- **Source Commit Date**: 2026-03-31 09:16:22 +0000
+- **Source Commit Message**: Refresh FLOX_VERSION when activating
 
 ## About Flox
 
@@ -8317,7 +8317,8 @@ flox install curl^bin,man,out
 ```
 
 A comma-separated list after a `^` is treated as a list of outputs you'd like to install.
-Note that this only allows you to install _additional_ outputs.
+Note that for the moment this is only allowed when installing a new package.
+In the future you will be able to install and uninstall specific outputs of existing packages.
 
 ## Conclusion
 
