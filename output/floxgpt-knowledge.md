@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-04-02 07:18:10 UTC
+- **Last Updated**: 2026-04-03 07:14:22 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `5d884a6b`
-- **Source Commit Date**: 2026-04-01 22:02:19 +0000
-- **Source Commit Message**: chore: pin GitHub Actions to SHA
+- **Source Commit**: `c56dc1de`
+- **Source Commit Date**: 2026-04-02 17:11:40 +0000
+- **Source Commit Message**: docs: address PR review feedback on overriding-packages tutorial
 
 ## About Flox
 
@@ -37,6 +37,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [Layering multiple environments](#layering-multiple-environments)
 - [Designing cross-platform environments](#designing-cross-platform-environments)
 - [Sharing your environments](#sharing-your-environments)
+- [Using a newer version of a package](#using-a-newer-version-of-a-package)
 - [What is the Flox Catalog?](#what-is-the-flox-catalog)
 - [Manifest Builds](#manifest-builds)
 - [Services](#services)
@@ -57,6 +58,7 @@ Flox provides a friendly CLI that abstracts away the complexity of Nix while giv
 - [The default environment](#the-default-environment)
 - [adjust this to match your existing or desired node group configuration -- below values are examples](#adjust-this-to-match-your-existing-or-desired-node-group-configuration----below-values-are-examples)
 - [Flox in 5 minutes](#flox-in-5-minutes)
+- [Flox and systemd](#flox-and-systemd)
 - [Flox vs. container workflows](#flox-vs-container-workflows)
 - [What is FloxHub?](#what-is-floxhub)
 - [What is a generation?](#what-is-a-generation)
@@ -2366,6 +2368,227 @@ telnet (GNU inetutils) 2.5
 [layering_guide]: ./layering-multiple-environments.md
 [customizing_guide]: ./customizing-environments.md
 [flox_containerize]: ../man/flox-containerize.md
+
+---
+
+
+## Using a newer version of a package
+
+> Source: `tutorials/overriding-packages.md`
+
+---
+title: Using a newer version of a package
+description: >
+  Override a package version in the Flox Catalog
+  to get a newer release before it's available upstream.
+---
+
+# Using a newer version of a package
+
+The Flox Catalog tracks [nixpkgs][nixpkgs], which means there can be a
+short delay between an upstream release and its availability in
+the catalog.
+See [What is the Base Catalog?][base-catalog] for details on how
+the catalog tracks nixpkgs and how often it updates.
+If you need a newer version right away, you can **override** the
+existing build recipe to point at the new release, then build
+and publish it so the updated version is available everywhere.
+
+This tutorial walks through the full workflow using
+[Nix expression builds][nix-expression-builds].
+
+## Scenario
+
+Imagine the Flox Catalog currently provides `hello` version
+2.12.1, but you need version 2.12.2.
+Rather than waiting for the catalog to catch up, you'll
+override the build recipe to use the newer release.
+
+## Create an environment
+
+Let's start by creating a fresh environment for our override:
+
+```text
+$ mkdir hello-override && cd hello-override
+$ flox init
+⚡︎ Created environment 'hello-override' (aarch64-darwin)
+
+Next:
+  $ flox search <package>    <- Search for a package
+  $ flox install <package>   <- Install a package into an environment
+  $ flox activate            <- Enter the environment
+  $ flox edit                <- Add environment variables and shell hooks
+  $ flox push                <- Use the environment from other machines or
+                                share it with someone on FloxHub
+```
+
+## Write the override
+
+Create a Nix expression that takes the existing `hello` build
+recipe and overrides its `version` and `src` attributes:
+
+
+    The attributes you need to override depend on how the
+    package is defined in nixpkgs. Different packages may use
+    different attribute names or build patterns. Check the
+    [nixpkgs source][nixpkgs] for the package you're modifying.
+
+```{ .bash .copy }
+mkdir -p .flox/pkgs/hello
+```
+
+```{ .nix .copy title=".flox/pkgs/hello/default.nix" }
+{ hello, fetchurl }:
+
+hello.overrideAttrs (finalAttrs: _oldAttrs: {
+  version = "2.12.2";
+  src = fetchurl {
+    url = "mirror://gnu/hello/hello-${finalAttrs.version}.tar.gz";
+    hash = "";
+  };
+})
+```
+
+
+    The `hash` is set to an empty string because we don't know
+    the correct value yet. We'll let the build tell us in the
+    next step.
+
+## Set up Git
+
+Nix expression builds require that all files in `.flox/pkgs/`
+are tracked by Git.
+Let's initialize a repository and add our files:
+
+```{ .bash .copy }
+git init
+git add .
+```
+
+## Get the correct hash
+
+Run `flox build` and it will fail with the expected hash:
+
+```text
+$ flox build
+warning: found empty hash, assuming 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+Building hello-2.12.2 in Nix expression mode
+...
+error: hash mismatch in fixed-output derivation:
+         specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+            got:    sha256-WpqZbcKSzCTc9BHO6H6S9qrluNE72caBm0x6nc4IGKs=
+```
+
+Copy the hash from the `got:` line and paste it into your
+expression:
+
+```{ .nix .copy title=".flox/pkgs/hello/default.nix" }
+{ hello, fetchurl }:
+
+hello.overrideAttrs (finalAttrs: _oldAttrs: {
+  version = "2.12.2";
+  src = fetchurl {
+    url = "mirror://gnu/hello/hello-${finalAttrs.version}.tar.gz";
+    hash = "sha256-WpqZbcKSzCTc9BHO6H6S9qrluNE72caBm0x6nc4IGKs=";
+  };
+})
+```
+
+## Build the package
+
+Now run `flox build` again:
+
+```text
+$ flox build
+Building hello-2.12.2 in Nix expression mode
+...
+Completed build of hello-2.12.2 in Nix expression mode
+
+✨ Build completed successfully. Output created: ./result-hello
+```
+
+Verify it works:
+
+```text
+$ ./result-hello/bin/hello
+Hello, world!
+```
+
+## Publish the package
+
+The [`flox publish`][flox-publish] command requires a remote and
+all tracked files committed and pushed.
+Let's set that up and publish:
+
+
+    The following example uses `$PWD` as the Git remote for
+    simplicity. In practice, you should use a proper remote
+    repository (for example on GitHub) so that others can
+    reproduce your build.
+
+```text
+$ git remote add origin "$PWD"
+$ git add .
+$ git commit -m "Add hello override"
+$ git push origin main
+$ flox publish hello
+Building hello-2.12.2 in Nix expression mode
+Completed build of hello-2.12.2 in Nix expression mode
+
+✔ Package published successfully.
+
+Use 'flox install myuser/hello' to install it.
+```
+
+The `flox publish` command performs a clean build from a
+temporary checkout to ensure the package is fully reproducible.
+See the [publishing concept][publishing-concept] page for more
+details.
+
+## Install from another environment
+
+Once published, the overridden package is available in any Flox
+environment.
+Let's create a new environment and install it there:
+
+```text
+$ mkdir ~/myproject && cd ~/myproject
+$ flox init
+$ flox install myuser/hello
+✔ 'myuser/hello' installed to environment 'myproject'
+```
+
+Verify you have the overridden version:
+
+```text
+$ flox activate -- hello --version
+hello (GNU Hello) 2.12.2
+```
+
+## Next steps
+
+This tutorial covered the simplest override — bumping a
+version number.
+The [Nix expression builds][nix-expression-builds] concept page
+covers additional patterns:
+
+- [Adding extensions][extensions-example] to an existing package
+- [Applying patches][patches-example] to fix bugs
+- [Vendoring a package][vendor-example] for deeper modifications
+
+For a full walkthrough of the build and publish workflow,
+including manifest builds, see the
+[Building and publishing packages][build-and-publish] tutorial.
+
+[nixpkgs]: https://github.com/NixOS/nixpkgs
+[base-catalog]: ../concepts/base-catalog.md
+[nix-expression-builds]: ../concepts/nix-expression-builds.md
+[flox-publish]: ../man/flox-publish.md
+[publishing-concept]: ../concepts/publishing.md
+[extensions-example]: ../concepts/nix-expression-builds.md#example-extensions-of-an-existing-package
+[patches-example]: ../concepts/nix-expression-builds.md#example-patches-to-an-existing-package
+[vendor-example]: ../concepts/nix-expression-builds.md#example-vendor-an-existing-package
+[build-and-publish]: ./build-and-publish.md
 
 ---
 
@@ -5961,6 +6184,219 @@ Have questions? Reach out on [Slack](https://go.flox.dev/slack){:target="_blank"
 [composition]: ./tutorials/composition.md
 [homebrew]: ./tutorials/migrations/homebrew.md
 [build-publish]: ./tutorials/build-and-publish.md
+
+---
+
+
+## Flox and systemd
+
+> Source: `tutorials/flox-and-systemd.md`
+
+---
+title: Flox and systemd
+description: Run Flox environment services as persistent systemd units.
+---
+
+# Flox and systemd
+
+Flox environments have a built-in concept of [services][services_concept].
+Flox environment services are managed by invoking the `flox services`
+category of sub-commands such as [`flox services status`][flox_services_status].
+In some scenarios, you may want to register Flox services to be run and managed
+by the operating system's systemd.
+For example, systemd can auto-start services when the host is booting
+or when a service crashes.
+
+This tutorial shows how to create and use systemd services with Flox
+by creating unit files manually.
+You will learn how to run a Flox environment service as both a
+**systemd user unit** and a **systemd system unit**.
+
+## Prerequisites
+
+- A Linux system with systemd support.
+  This tutorial was tested on Ubuntu 24.04 and 26.04.
+- Flox installed in multi-user mode.
+  This tutorial was tested on Flox 1.11.0.
+
+## Constraints
+
+- The systemd service that invokes Flox cannot run as root.
+- The service cannot listen on a port with a value less than 1024.
+- The UID for the user running the systemd service should be >= 1000
+  for logs to function properly.
+  See [flox#2e789b5][uid_fix] for details.
+- Logs may not function properly if the process forks.
+  See [flox#9b1e750][fork_fix] for details.
+
+## Run a Flox environment service as a systemd user unit
+
+In this section you will set up a Redis service from a FloxHub environment
+and run it as a systemd user unit.
+
+### Create the Redis environment locally
+
+Pull the `flox/redis` environment from FloxHub into your home directory:
+
+``` { .bash .copy }
+flox pull flox/redis -d ~/redis
+```
+
+### Test the environment with Flox services
+
+Before creating the systemd unit,
+verify that the environment works:
+
+``` { .bash .copy }
+cd ~/redis
+flox activate -s
+flox services status
+redis-cli -p $REDIS_PORT ping
+exit
+```
+
+### Create the systemd user service
+
+Create the systemd user unit file:
+
+``` { .bash .copy }
+mkdir -p ~/.config/systemd/user/
+cat > ~/.config/systemd/user/redis.service << 'EOF'
+[Unit]
+Description=Redis Server (Flox)
+
+[Service]
+ExecStart=flox activate -d %h/redis -c 'redis-server --bind $REDIS_HOST --port $REDIS_PORT --daemonize no --dir $REDIS_DATA'
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+By default, systemd user units only run while the user is logged in.
+Enabling **lingering** allows the service to start at boot without a login session.
+If you only need the service to run while you are logged in,
+you can skip this step.
+
+``` { .bash .copy }
+sudo loginctl enable-linger $USER
+```
+
+Load, enable, and start the service:
+
+``` { .bash .copy }
+systemctl --user daemon-reload
+systemctl --user enable redis.service
+systemctl --user start redis.service
+```
+
+Verify the service is running:
+
+``` { .bash .copy }
+systemctl --user status redis.service
+```
+
+Verify Redis is responding:
+
+``` { .bash .copy }
+flox activate -d ~/redis -c 'redis-cli -p "$REDIS_PORT" ping'
+# should respond PONG
+```
+
+### User unit cleanup
+
+To stop and fully remove the systemd user unit:
+
+``` { .bash .copy }
+systemctl --user stop redis.service
+systemctl --user disable redis.service
+rm ~/.config/systemd/user/redis.service
+systemctl --user daemon-reload
+```
+
+## Run a Flox environment service as a systemd system unit
+
+For services that should run under a dedicated system user rather than
+your personal account,
+you can create a system-level systemd unit instead.
+
+### Create a dedicated Redis user and environment
+
+``` { .bash .copy }
+sudo useradd --system --create-home --shell /usr/sbin/nologin redis
+sudo -u redis flox pull flox/redis -d /home/redis/redis
+```
+
+### Create the system unit file
+
+Since the `redis` user has no login session,
+user units will not work.
+Create a system unit instead:
+
+``` { .bash .copy }
+sudo tee /etc/systemd/system/redis.service << 'EOF'
+[Unit]
+Description=Redis Server (Flox)
+
+[Service]
+User=redis
+ExecStart=flox activate -d /home/redis/redis -c 'redis-server --bind $REDIS_HOST --port $REDIS_PORT --daemonize no --dir $REDIS_DATA'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+    Enable lingering is not needed for system units.
+    System units start at boot automatically.
+
+### Load, enable, and start
+
+``` { .bash .copy }
+sudo systemctl daemon-reload
+sudo systemctl enable redis.service
+sudo systemctl start redis.service
+```
+
+### Verify
+
+``` { .bash .copy }
+sudo systemctl status redis.service
+```
+
+``` { .bash .copy }
+flox activate -d ~/redis -c 'redis-cli -p $REDIS_PORT ping'
+# should respond PONG
+```
+
+    Key differences from the user unit approach:
+    the system unit goes in `/etc/systemd/system/`,
+    uses `multi-user.target`,
+    requires `sudo`,
+    and no lingering is needed.
+
+### System unit cleanup
+
+To stop and fully remove the systemd system unit:
+
+``` { .bash .copy }
+sudo systemctl stop redis.service
+sudo systemctl disable redis.service
+sudo rm /etc/systemd/system/redis.service
+sudo systemctl daemon-reload
+```
+
+## Where to next?
+
+- :simple-readme:{ .flox-purple .flox-heart } [Learn more about services][services_concept]
+
+- :simple-readme:{ .flox-purple .flox-heart } [Sharing environments][sharing_guide]
+
+[services_concept]: ../concepts/services.md
+[flox_services_status]: ../man/flox-services-status.md
+[sharing_guide]: ./sharing-environments.md
+[uid_fix]: https://github.com/flox/flox/commit/2e789b55de153b80a23367b236334ffbe84d6289
+[fork_fix]: https://github.com/flox/flox/commit/9b1e7504fd5dd482d9afeda1e21ecfe8d1f86593
 
 ---
 
