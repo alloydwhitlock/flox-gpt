@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-04-11 07:04:31 UTC
+- **Last Updated**: 2026-04-12 07:19:47 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `6ba33a15`
-- **Source Commit Date**: 2026-04-08 16:10:54 +0000
-- **Source Commit Message**: fix(ci): relax lychee per-host rate limit to reduce connection errors
+- **Source Commit**: `c15e946c`
+- **Source Commit Date**: 2026-04-11 20:51:25 +0000
+- **Source Commit Message**: fix: use inline links for checksum URLs to fix MD052 lint error
 
 ## About Flox
 
@@ -254,6 +254,11 @@ description: How to install or upgrade the Flox CLI
 ---
 
 # Install Flox { #install-flox }
+
+    You can find the
+    [SHA256 checksums](https://downloads.flox.dev/by-env/stable/flox-{{ FLOX_VERSION }}.SHA256SUMS) and
+    [SHA512 checksums](https://downloads.flox.dev/by-env/stable/flox-{{ FLOX_VERSION }}.SHA512SUMS) for
+    Flox {{ FLOX_VERSION }} online.
 
 === "MacOS (Pkg)"
 
