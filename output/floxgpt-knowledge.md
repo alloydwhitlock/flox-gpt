@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-04-14 07:52:25 UTC
+- **Last Updated**: 2026-04-15 07:53:05 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `c15e946c`
-- **Source Commit Date**: 2026-04-11 20:51:25 +0000
-- **Source Commit Message**: fix: use inline links for checksum URLs to fix MD052 lint error
+- **Source Commit**: `f7d40767`
+- **Source Commit Date**: 2026-04-14 15:50:25 +0000
+- **Source Commit Message**: feat(ide-extensions): put Skills and MCP tab first
 
 ## About Flox
 
@@ -7790,6 +7790,73 @@ description: IDE extensions and AI agent integrations for Flox
 
 # Extensions
 
+=== "Skills and MCP"
+
+    [Flox Agentic][agentic] provides a skill library and MCP server
+    that give AI coding agents expert knowledge of Flox environments,
+    builds, services, containers, publishing, and CUDA.
+
+    **Skills included:** `flox-environments`, `flox-services`,
+    `flox-builds`, `flox-containers`, `flox-publish`,
+    `flox-sharing`, `flox-cuda`
+
+    ## Claude Code
+
+    The Flox plugin for Claude Code installs both the skill library
+    and MCP server in one step:
+
+    ```{ .sh .code-command .copy }
+    claude plugin marketplace add flox/flox-agentic
+    ```
+
+    ```{ .sh .code-command .copy }
+    claude plugin install flox@flox-agentic
+    ```
+
+    ## Other agents (skills.sh)
+
+    For Cursor, Copilot, Windsurf, Gemini, and 15+ other agents,
+    use [skills.sh][skillssh] — a third-party open agent skills
+    ecosystem:
+
+    ```{ .sh .code-command .copy }
+    npx skills add flox/flox-agentic
+    ```
+
+            skills.sh is not maintained by Flox. It requires Node.js.
+        See [skills.sh][skillssh] for supported agents and docs.
+
+    ## MCP server
+
+    For agents that support the
+    [Model Context Protocol][mcp] directly, install the MCP server:
+
+    ```{ .sh .code-command .copy }
+    flox install flox/flox-mcp-server
+    ```
+
+    Then point your client at the `flox-mcp` command using stdio
+    transport. For Cursor, add to `~/.cursor/mcp.json`:
+
+    ```{ .json .copy }
+    {
+      "mcpServers": {
+        "flox": {
+          "command": "flox-mcp"
+        }
+      }
+    }
+    ```
+
+    ## Learn more
+
+    Full documentation and source code:
+    [github.com/flox/flox-agentic][agentic]
+
+    [agentic]: https://github.com/flox/flox-agentic
+    [mcp]: https://modelcontextprotocol.io
+    [skillssh]: https://skills.sh
+
 === "VS Code"
 
     The [Flox extension for VS Code][marketplace] brings full
@@ -7848,60 +7915,6 @@ description: IDE extensions and AI agent integrations for Flox
     [marketplace]: https://marketplace.visualstudio.com/items?itemName=flox.flox
     [cursor]: https://cursor.com
     [repo]: https://github.com/flox/flox-vscode
-
-=== "MCP and Skills"
-
-    [Flox Agentic][agentic] is an MCP server and skill library that
-    gives AI coding agents access to Flox environments.
-
-    ## Install the MCP server
-
-    ```{ .sh .code-command .copy }
-    flox install flox/flox-mcp-server
-    ```
-
-    ## Claude Code
-
-    Add the MCP server to your project:
-
-    ```{ .sh .code-command .copy }
-    claude mcp add flox -- flox-mcp
-    ```
-
-    Or add it user-wide:
-
-    ```{ .sh .code-command .copy }
-    claude mcp add --scope user flox -- flox-mcp
-    ```
-
-    ## Cursor
-
-    Add the following to `~/.cursor/mcp.json`:
-
-    ```{ .json .copy }
-    {
-      "mcpServers": {
-        "flox": {
-          "command": "flox-mcp"
-        }
-      }
-    }
-    ```
-
-    ## Other MCP clients
-
-    Any editor or agent that supports the
-    [Model Context Protocol][mcp] can use Flox Agentic.
-    Point your client at the `flox-mcp` command using stdio
-    transport.
-
-    ## Learn more
-
-    Full documentation and source code:
-    [github.com/flox/flox-agentic][agentic]
-
-    [agentic]: https://github.com/flox/flox-agentic
-    [mcp]: https://modelcontextprotocol.io
 
 ---
 
