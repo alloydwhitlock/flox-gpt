@@ -4,11 +4,11 @@
 
 ## Metadata
 
-- **Last Updated**: 2026-04-15 07:53:05 UTC
+- **Last Updated**: 2026-04-16 07:53:10 UTC
 - **Source Repository**: https://github.com/flox/floxdocs
-- **Source Commit**: `f7d40767`
-- **Source Commit Date**: 2026-04-14 15:50:25 +0000
-- **Source Commit Message**: feat(ide-extensions): put Skills and MCP tab first
+- **Source Commit**: `ed586843`
+- **Source Commit Date**: 2026-04-15 12:47:27 +0000
+- **Source Commit Message**: fix(llms): add flox.dev/install to hallucinated URL negation
 
 ## About Flox
 
